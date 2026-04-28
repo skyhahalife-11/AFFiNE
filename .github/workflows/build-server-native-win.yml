@@ -26,18 +26,15 @@ jobs:
           package: '@affine/server-native'
 
       - name: List built files
-        shell: bash
+        shell: pwsh
         run: |
-          echo "=== workspace ==="
-          ls -la ${{ github.workspace }}/packages/backend/native/*.node || true
-          echo "=== DEV_DRIVE_WORKSPACE ==="
-          ls -la ${{ env.DEV_DRIVE_WORKSPACE }}/packages/backend/native/*.node || true
-          find ${{ github.workspace }} -name "server-native*" -type f || true
+          Write-Host "=== Searching for .node files ==="
+          Get-ChildItem -Path "${{ github.workspace }}\packages\backend\native" -Filter "*.node" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+          Write-Host "=== Searching everywhere for server-native ==="
+          Get-ChildItem -Path "${{ github.workspace }}" -Recurse -Filter "server-native*" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
 
       - name: Upload server-native.node
         uses: actions/upload-artifact@v4
         with:
           name: server-native-win32-x64
-          path: |
-            ${{ github.workspace }}/packages/backend/native/server-native*.node
-            ${{ env.DEV_DRIVE_WORKSPACE }}/packages/backend/native/server-native*.node
+          path: ${{ github.workspace }}\packages\backend\native\*.node
