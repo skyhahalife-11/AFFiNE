@@ -1,0 +1,33 @@
+name: Build Server Native (Windows)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-server-native-windows:
+    name: Build Server Native (Windows x64)
+    runs-on: windows-latest
+    env:
+      DEV_DRIVE: 'C:'
+      DEV_DRIVE_WORKSPACE: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          extra-flags: workspaces focus @affine/server-native
+          electron-install: false
+
+      - name: Build Rust
+        uses: ./.github/actions/build-rust
+        with:
+          target: 'x86_64-pc-windows-msvc'
+          package: '@affine/server-native'
+
+      - name: Upload server-native.node
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-native-win32-x64
+          path: ./packages/backend/native/server-native.*.node
+          if-no-files-found: error
